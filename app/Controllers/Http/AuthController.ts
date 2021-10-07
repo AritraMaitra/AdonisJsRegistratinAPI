@@ -1,7 +1,6 @@
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import User from "App/Models/User";
 import { rules, schema } from "@ioc:Adonis/Core/Validator";
-import Profile from "App/Models/Profile";
 
 export default class AuthController {
   public async register({ request, logger, response }: HttpContextContract) {
@@ -16,8 +15,7 @@ export default class AuthController {
     try {
       const data = await request.validate({ schema: validatorSchema });
       const user = await User.create(data);
-      const profile = await Profile.create({ user_id: user.id });
-      console.log(profile);
+
       logger.info(`User Registered---->${JSON.stringify(user)}`);
       return response.status(200).send(`User Registered!`);
     } catch (error) {
@@ -33,7 +31,7 @@ export default class AuthController {
       const token = await auth.use("api").attempt(email, password, {
         expiresIn: "24hours",
       });
-      logger.info(`Logged In Successfully with ${token}`);
+      logger.info(`Logged In Successfully with ${JSON.stringify(token)}`);
       return token.toJSON();
     } catch (error) {
       logger.error(`ERROR==>${JSON.stringify(error)}`);
@@ -41,7 +39,7 @@ export default class AuthController {
         .status(400)
         .send({
           error: {
-            message: "User with provided credentials could not be found!",
+            message: "Incorrect Email or Password!",
           },
         });
     }
@@ -49,8 +47,22 @@ export default class AuthController {
   public async logout({ auth, logger, response }: HttpContextContract) {
     try {
       await auth.logout();
-      logger.info(`Logged Out ${{ revoke: true }}`);
+      logger.info(`Logged Out ${JSON.stringify({ revoke: true })}`);
       return response.status(200).send("Logged Out Successfully!");
+    } catch (error) {
+      logger.error(`ERROR==>${JSON.stringify(error)}`);
+      return response.status(401).send({ error: { message: "Unauthorized!" } });
+    }
+  }
+  public async resetPassword({ request, logger, response }: HttpContextContract) {
+    try {
+      const email = request.input('email');
+      const newPassword = request.input('newPassword')
+      const payload = {password:newPassword}
+      const user = await User.findBy("email", email);
+      let result = await user?.merge(payload).save();
+      logger.info(`Password Reset on ${result?.updatedAt}`);
+      return response.status(200).send(`Password Reset : ${result}`);
     } catch (error) {
       logger.error(`ERROR==>${JSON.stringify(error)}`);
       return response.status(401).send({ error: { message: "Unauthorized!" } });

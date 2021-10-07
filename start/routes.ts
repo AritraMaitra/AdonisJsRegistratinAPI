@@ -25,7 +25,7 @@ Route.post('register',"AuthController.register").as('register');
 Route.group(() => {
 Route.post('logout',"AuthController.logout").as('logout');
 }).middleware(["auth"]);
-
+Route.post('resetPassword',"AuthController.resetPassword").as('resetPassword');
 Route.post('login',"AuthController.login").as('login');
 
 
