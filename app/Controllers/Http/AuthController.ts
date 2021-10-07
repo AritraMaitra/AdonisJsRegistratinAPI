@@ -1,8 +1,12 @@
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import User from "App/Models/User";
 import { rules, schema } from "@ioc:Adonis/Core/Validator";
+import { DateTime } from "luxon";
 
 export default class AuthController {
+
+  //REGISTER
+
   public async register({ request, logger, response }: HttpContextContract) {
     const validatorSchema = schema.create({
       email: schema.string({}, [
@@ -23,6 +27,9 @@ export default class AuthController {
       return response.status(404).send({ error: { message: "Failure!" } });
     }
   }
+
+  //LOGIN
+
   public async login({ request, logger, auth, response }: HttpContextContract) {
     const password = await request.input("password");
     const email = await request.input("email");
@@ -44,6 +51,9 @@ export default class AuthController {
         });
     }
   }
+
+  //LOGOUT
+
   public async logout({ auth, logger, response }: HttpContextContract) {
     try {
       await auth.logout();
@@ -54,6 +64,9 @@ export default class AuthController {
       return response.status(401).send({ error: { message: "Unauthorized!" } });
     }
   }
+
+  //RESET PASSWORD
+
   public async resetPassword({ request, logger, response }: HttpContextContract) {
     try {
       const email = request.input('email');
@@ -61,8 +74,8 @@ export default class AuthController {
       const payload = {password:newPassword}
       const user = await User.findBy("email", email);
       let result = await user?.merge(payload).save();
-      logger.info(`Password Reset on ${result?.updatedAt}`);
-      return response.status(200).send(`Password Reset : ${result}`);
+      logger.info(`Password Reset on ${result?.updatedAt.toLocaleString(DateTime.DATETIME_SHORT)}`);
+      return response.status(200).send(`Password Reset : ${result?.updatedAt.toLocaleString(DateTime.DATETIME_SHORT)}`);
     } catch (error) {
       logger.error(`ERROR==>${JSON.stringify(error)}`);
       return response.status(401).send({ error: { message: "Unauthorized!" } });
