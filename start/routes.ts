@@ -18,12 +18,14 @@
 |
 */
 import Route from '@ioc:Adonis/Core/Route'
-
+// import Logger from '@ioc:Adonis/Core/Logger'
 Route.get('/',"HomeController.index")
 Route.post('register',"AuthController.register").as('register');
+
 Route.group(() => {
 Route.post('logout',"AuthController.logout").as('logout');
 }).middleware(["auth"]);
+
 Route.post('login',"AuthController.login").as('login');
 
 
