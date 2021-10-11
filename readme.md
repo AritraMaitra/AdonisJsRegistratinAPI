@@ -9,12 +9,17 @@
 ```
 npm i <package name> 
 ```
-Required dependencies are Listed in **package.json** file
+#### Required dependencies are Listed in **package.json** file
 ---
 ### To run migrations
 ```
-node ace migration:run
+npm run dev
 ```
+>> For other Adonis Commands Run
+```
+node ace
+```
+>>while server is running
 ---
 ### To Start Server
 ```
